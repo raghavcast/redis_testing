@@ -1,7 +1,7 @@
 //! src/sortnot.rs
 
 use std::{io::{self, Write}, time::Instant, process::exit};
-use redis::{Commands, geo::Coord};
+use redis::{Commands};
 use super::connection::GEOSET_NAME;
 use rand::Rng;
 use super::hashing::{from_hash, to_hash};

@@ -28,7 +28,7 @@ async fn test_num_geoadd_and_check_length () {
     lat = rng.gen_range(-85.05..85.05);
     long = rng.gen_range(-180.0..180.0);
     let _: () = conn.geo_add(GEOSET_NAME,(long, lat, format!("loc{}", i)))
-      .expect(&format!("failed to insert on number {}", i));
+      .unwrap_or_else(|_| panic!("failed to insert on number {}", i));
     i += 1;
   }
 
@@ -59,7 +59,7 @@ async fn test_num_random_geoadd_and_check_length () {
   let mut i = 0;
   while i < num {
     let _: () = conn.geo_add(GEOSET_NAME,("12", "12", format!("loc{}", i)))
-      .expect(&format!("failed to insert on number {}", i));
+      .unwrap_or_else(|_| panic!("failed to insert on number {}", i));
     i += 1;
   }
 

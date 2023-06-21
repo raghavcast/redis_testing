@@ -46,7 +46,7 @@ println!("go redis driver repo name: {:?}", repo_name);
 
 fn _basics() {
 let mut conn = connect();
-let bar = "hello world";
+let _bar = "hello world";
 
 let _: () = redis::cmd("SET")
     .arg("foo")
