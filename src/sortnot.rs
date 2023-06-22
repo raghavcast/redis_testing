@@ -1,6 +1,6 @@
 //! src/sortnot.rs
 
-use std::{io::{self, Write}, time::Instant, process::exit};
+use std::{io::{self, Write}, time::Instant};
 use redis::{Commands};
 use super::connection::GEOSET_NAME;
 use rand::Rng;
@@ -64,19 +64,19 @@ pub fn sort_or_not(mut conn: redis::Connection) {
   let duration = start.elapsed();
   println!("Time elapsed in main() without sorting is : {:?}", duration);
   
-  print!("Continue? (y/n): ");
-  io::stdout().flush().unwrap();
-  let mut inp = String::new();
-  io::stdin().read_line(&mut inp).unwrap();
+  // print!("Continue? (y/n): ");
+  // io::stdout().flush().unwrap();
+  // let mut inp = String::new();
+  // io::stdin().read_line(&mut inp).unwrap();
 
-  let inp = inp.trim();
+  // let inp = inp.trim();
 
-  match inp {
-    "n" =>   exit(0),
-    _ => {
-      println!("okay");
-    },
-  }
+  // match inp {
+  //   "n" =>   exit(0),
+  //   _ => {
+  //     println!("okay");
+  //   },
+  // }
   
   //
   // Sorted update
@@ -86,9 +86,20 @@ pub fn sort_or_not(mut conn: redis::Connection) {
   
   // Sorting start
 
-  let mut hash_list = rand_list.iter().map(|(x, y, loc)| (to_hash(x, y), loc)).collect::<Vec<(String, &String)>>();
+  let startsort = Instant::now();
 
-  hash_list.sort_by(|(a, _),(b, _)| a.cmp(b));
+  let mut hash_list = rand_list.iter()
+    .map(|(x, y, loc)| 
+      (to_hash(x, y), loc))
+    .collect::<Vec<(String, &String)>>();
+
+  let durationsort1 = startsort.elapsed();
+  let startsort = Instant::now();
+
+  hash_list.sort_by(|a, b| a.1.cmp(b.1));
+
+  let durationsort2 = startsort.elapsed();
+  let startsort = Instant::now();
 
   let new_list = hash_list.iter()
     .map(|(x, loc)| {
@@ -96,6 +107,7 @@ pub fn sort_or_not(mut conn: redis::Connection) {
       (coo.x, coo.y, *loc)
     }).collect::<Vec<(f64, f64, &String)>>();
 
+  let durationsort3 = startsort.elapsed();
 // Sorting end
 
   let start_nosort = Instant::now();
@@ -111,6 +123,10 @@ pub fn sort_or_not(mut conn: redis::Connection) {
   let duration_nosort = start_nosort.elapsed();
   println!("Time elapsed in main() with sorting (including sorting time) is : {:?}", duration_sort);
   println!("Time elapsed in main() with sorting (not including sorting time) is: {:?}", duration_nosort);
+  println!();
+  println!("Time taken to hash the list: {:?}", durationsort1);
+  println!("Time taken to sort the list: {:?}", durationsort2);
+  println!("Time taken to unhash the list: {:?}", durationsort3);
   //println!("compare: {:?} {:?}", new_list[0], rand_list[0]);
 
   print!("Delete entries? (y/n): ");
